@@ -1,5 +1,5 @@
 /*!
-* sweetalert2 v11.1.5
+* sweetalert2 v11.1.10
 * Released under the MIT License.
 */
 (function (global, factory) {
@@ -319,7 +319,8 @@
       elem.style.removeProperty(property);
     }
   };
-  const show = (elem, display = 'flex') => {
+  const show = function (elem) {
+    let display = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'flex';
     elem.style.display = display;
   };
   const hide = elem => {
@@ -346,7 +347,8 @@
     const transDuration = parseFloat(style.getPropertyValue('transition-duration') || '0');
     return animDuration > 0 || transDuration > 0;
   };
-  const animateTimerProgressBar = (timer, reset = false) => {
+  const animateTimerProgressBar = function (timer) {
+    let reset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
     const timerProgressBar = getTimerProgressBar();
 
     if (isVisible(timerProgressBar)) {
@@ -537,10 +539,7 @@
 
   const renderActions = (instance, params) => {
     const actions = getActions();
-    const loader = getLoader();
-    const confirmButton = getConfirmButton();
-    const denyButton = getDenyButton();
-    const cancelButton = getCancelButton(); // Actions (buttons) wrapper
+    const loader = getLoader(); // Actions (buttons) wrapper
 
     if (!params.showConfirmButton && !params.showDenyButton && !params.showCancelButton) {
       hide(actions);
@@ -549,7 +548,18 @@
     } // Custom class
 
 
-    applyCustomClass(actions, params, 'actions'); // Render buttons
+    applyCustomClass(actions, params, 'actions'); // Render all the buttons
+
+    renderButtons(actions, loader, params); // Loader
+
+    setInnerHtml(loader, params.loaderHtml);
+    applyCustomClass(loader, params, 'loader');
+  };
+
+  function renderButtons(actions, loader, params) {
+    const confirmButton = getConfirmButton();
+    const denyButton = getDenyButton();
+    const cancelButton = getCancelButton(); // Render buttons
 
     renderButton(confirmButton, 'confirm', params);
     renderButton(denyButton, 'deny', params);
@@ -557,15 +567,16 @@
     handleButtonsStyling(confirmButton, denyButton, cancelButton, params);
 
     if (params.reverseButtons) {
-      actions.insertBefore(cancelButton, loader);
-      actions.insertBefore(denyButton, loader);
-      actions.insertBefore(confirmButton, loader);
-    } // Loader
-
-
-    setInnerHtml(loader, params.loaderHtml);
-    applyCustomClass(loader, params, 'loader');
-  };
+      if (params.toast) {
+        actions.insertBefore(cancelButton, confirmButton);
+        actions.insertBefore(denyButton, confirmButton);
+      } else {
+        actions.insertBefore(cancelButton, loader);
+        actions.insertBefore(denyButton, loader);
+        actions.insertBefore(confirmButton, loader);
+      }
+    }
+  }
 
   function handleButtonsStyling(confirmButton, denyButton, cancelButton, params) {
     if (!params.buttonsStyling) {
@@ -644,7 +655,7 @@
   };
 
   /**
-   * This module containts `WeakMap`s for each effectively-"private  property" that a `Swal` has.
+   * This module contains `WeakMap`s for each effectively-"private  property" that a `Swal` has.
    * For example, to set the private property "foo" of `this` to "bar", you can `privateProps.foo.set(this, 'bar')`
    * This is the approach that Babel will probably take to implement private methods/fields
    *   https://github.com/tc39/proposal-private-methods
@@ -653,6 +664,7 @@
    *   then we can use that language feature.
    */
   var privateProps = {
+    awaitingPromise: new WeakMap(),
     promise: new WeakMap(),
     innerParams: new WeakMap(),
     domCache: new WeakMap()
@@ -1150,8 +1162,13 @@
 
   const clickCancel = () => getCancelButton() && getCancelButton().click();
 
-  function fire(...args) {
+  function fire() {
     const Swal = this;
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
     return new Swal(...args);
   }
 
@@ -1325,7 +1342,8 @@
 
   let bodyClickListenerAdded = false;
   const clickHandlers = {};
-  function bindClickHandler(attr = 'data-swal-template') {
+  function bindClickHandler() {
+    let attr = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'data-swal-template';
     clickHandlers[attr] = this;
 
     if (!bodyClickListenerAdded) {
@@ -1335,7 +1353,6 @@
   }
 
   const bodyClickListener = event => {
-    // TODO: replace with event.composedPath()
     for (let el = event.target; el && el !== document; el = el.parentNode) {
       for (const attr in clickHandlers) {
         const template = el.getAttribute(attr);
@@ -1735,7 +1752,7 @@
   };
 
   /**
-   * This module containts `WeakMap`s for each effectively-"private  property" that a `Swal` has.
+   * This module contains `WeakMap`s for each effectively-"private  property" that a `Swal` has.
    * For example, to set the private property "foo" of `this` to "bar", you can `privateProps.foo.set(this, 'bar')`
    * This is the approach that Babel will probably take to implement private methods/fields
    *   https://github.com/tc39/proposal-private-methods
@@ -1744,7 +1761,8 @@
    *   then we can use that language feature.
    */
   var privateMethods = {
-    swalPromiseResolve: new WeakMap()
+    swalPromiseResolve: new WeakMap(),
+    swalPromiseReject: new WeakMap()
   };
 
   /*
@@ -1787,29 +1805,66 @@
   }
 
   function close(resolveValue) {
+    resolveValue = prepareResolveValue(resolveValue);
+    const swalPromiseResolve = privateMethods.swalPromiseResolve.get(this);
+    const didClose = triggerClosePopup(this);
+
+    if (this.isAwaitingPromise()) {
+      // A swal awaiting for a promise (after a click on Confirm or Deny) cannot be dismissed anymore #2335
+      if (!resolveValue.isDismissed) {
+        handleAwaitingPromise(this);
+        swalPromiseResolve(resolveValue);
+      }
+    } else if (didClose) {
+      // Resolve Swal promise
+      swalPromiseResolve(resolveValue);
+    }
+  }
+  function isAwaitingPromise() {
+    return !!privateProps.awaitingPromise.get(this);
+  }
+
+  const triggerClosePopup = instance => {
     const popup = getPopup();
 
     if (!popup) {
-      return;
+      return false;
     }
 
-    resolveValue = prepareResolveValue(resolveValue);
-    const innerParams = privateProps.innerParams.get(this);
+    const innerParams = privateProps.innerParams.get(instance);
 
     if (!innerParams || hasClass(popup, innerParams.hideClass.popup)) {
-      return;
+      return false;
     }
 
-    const swalPromiseResolve = privateMethods.swalPromiseResolve.get(this);
     removeClass(popup, innerParams.showClass.popup);
     addClass(popup, innerParams.hideClass.popup);
     const backdrop = getContainer();
     removeClass(backdrop, innerParams.showClass.backdrop);
     addClass(backdrop, innerParams.hideClass.backdrop);
-    handlePopupAnimation(this, popup, innerParams); // Resolve Swal promise
+    handlePopupAnimation(instance, popup, innerParams);
+    return true;
+  };
 
-    swalPromiseResolve(resolveValue);
+  function rejectPromise(error) {
+    const rejectPromise = privateMethods.swalPromiseReject.get(this);
+    handleAwaitingPromise(this);
+
+    if (rejectPromise) {
+      // Reject Swal promise
+      rejectPromise(error);
+    }
   }
+
+  const handleAwaitingPromise = instance => {
+    if (instance.isAwaitingPromise()) {
+      privateProps.awaitingPromise.delete(instance); // The instance might have been previously partly destroyed, we must resume the destroy process in this case #2335
+
+      if (!privateProps.innerParams.get(instance)) {
+        instance._destroy();
+      }
+    }
+  };
 
   const prepareResolveValue = resolveValue => {
     // When user calls Swal.close()
@@ -2563,6 +2618,8 @@
     }
 
     if (innerParams.preDeny) {
+      privateProps.awaitingPromise.set(instance || undefined, true); // Flagging the instance as awaiting a promise so it's own promise's reject/resolve methods doesnt get destroyed until the result from this preDeny's promise is received
+
       const preDenyPromise = Promise.resolve().then(() => asPromise(innerParams.preDeny(value, innerParams.validationMessage)));
       preDenyPromise.then(preDenyValue => {
         if (preDenyValue === false) {
@@ -2573,7 +2630,7 @@
             value: typeof preDenyValue === 'undefined' ? value : preDenyValue
           });
         }
-      });
+      }).catch(error$$1 => rejectWith(instance || undefined, error$$1));
     } else {
       instance.closePopup({
         isDenied: true,
@@ -2589,15 +2646,21 @@
     });
   };
 
+  const rejectWith = (instance, error$$1) => {
+    instance.rejectPromise(error$$1);
+  };
+
   const confirm = (instance, value) => {
     const innerParams = privateProps.innerParams.get(instance || undefined);
 
     if (innerParams.showLoaderOnConfirm) {
-      showLoading(); // TODO: make showLoading an *instance* method
+      showLoading();
     }
 
     if (innerParams.preConfirm) {
       instance.resetValidationMessage();
+      privateProps.awaitingPromise.set(instance || undefined, true); // Flagging the instance as awaiting a promise so it's own promise's reject/resolve methods doesnt get destroyed until the result from this preConfirm's promise is received
+
       const preConfirmPromise = Promise.resolve().then(() => asPromise(innerParams.preConfirm(value, innerParams.validationMessage)));
       preConfirmPromise.then(preConfirmValue => {
         if (isVisible(getValidationMessage()) || preConfirmValue === false) {
@@ -2605,7 +2668,7 @@
         } else {
           succeedWith(instance, typeof preConfirmValue === 'undefined' ? value : preConfirmValue);
         }
-      });
+      }).catch(error$$1 => rejectWith(instance || undefined, error$$1));
     } else {
       succeedWith(instance, value);
     }
@@ -2809,7 +2872,8 @@
     };
   };
 
-  function _main(userParams, mixinParams = {}) {
+  function _main(userParams) {
+    let mixinParams = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     showWarningsForParams(Object.assign({}, mixinParams, userParams));
 
     if (globalState.currentInstance) {
@@ -2848,7 +2912,7 @@
   };
 
   const swalPromise = (instance, domCache, innerParams) => {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       // functions to handle all closings/dismissals
       const dismissWith = dismiss => {
         instance.closePopup({
@@ -2858,6 +2922,7 @@
       };
 
       privateMethods.swalPromiseResolve.set(instance, resolve);
+      privateMethods.swalPromiseReject.set(instance, reject);
 
       domCache.confirmButton.onclick = () => handleConfirmButtonClick(instance);
 
@@ -2996,6 +3061,8 @@
     const innerParams = privateProps.innerParams.get(this);
 
     if (!innerParams) {
+      disposeWeakMaps(this); // The WeakMaps might have been partly destroyed, we must recall it to dispose any remaining weakmaps #2335
+
       return; // This instance has already been destroyed
     } // Check if there is another Swal closing
 
@@ -3019,21 +3086,30 @@
   }
 
   const disposeSwal = instance => {
-    // Unset this.params so GC will dispose it (#1569)
+    disposeWeakMaps(instance); // Unset this.params so GC will dispose it (#1569)
+
     delete instance.params; // Unset globalState props so GC will dispose globalState (#1569)
 
     delete globalState.keydownHandler;
-    delete globalState.keydownTarget; // Unset WeakMaps so GC will be able to dispose them (#1569)
-
-    unsetWeakMaps(privateProps);
-    unsetWeakMaps(privateMethods); // Unset currentInstance
+    delete globalState.keydownTarget; // Unset currentInstance
 
     delete globalState.currentInstance;
   };
 
-  const unsetWeakMaps = obj => {
+  const disposeWeakMaps = instance => {
+    // If the current instance is awaiting a promise result, we keep the privateMethods to call them once the promise result is retrieved #2335
+    if (instance.isAwaitingPromise()) {
+      unsetWeakMaps(privateProps, instance);
+      privateProps.awaitingPromise.set(instance, true);
+    } else {
+      unsetWeakMaps(privateMethods, instance);
+      unsetWeakMaps(privateProps, instance);
+    }
+  };
+
+  const unsetWeakMaps = (obj, instance) => {
     for (const i in obj) {
-      obj[i] = new WeakMap();
+      obj[i].delete(instance);
     }
   };
 
@@ -3044,6 +3120,8 @@
     disableLoading: hideLoading,
     getInput: getInput$1,
     close: close,
+    isAwaitingPromise: isAwaitingPromise,
+    rejectPromise: rejectPromise,
     closePopup: close,
     closeModal: close,
     closeToast: close,
@@ -3062,13 +3140,18 @@
   let currentInstance;
 
   class SweetAlert {
-    constructor(...args) {
+    constructor() {
       // Prevent run in Node env
       if (typeof window === 'undefined') {
         return;
       }
 
       currentInstance = this;
+
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
       const outerParams = Object.freeze(this.constructor.argsToParams(args));
       Object.defineProperties(this, {
         params: {
@@ -3103,14 +3186,14 @@
   Object.assign(SweetAlert, staticMethods); // Proxy to instance methods to constructor, for now, for backwards compatibility
 
   Object.keys(instanceMethods).forEach(key => {
-    SweetAlert[key] = function (...args) {
+    SweetAlert[key] = function () {
       if (currentInstance) {
-        return currentInstance[key](...args);
+        return currentInstance[key](...arguments);
       }
     };
   });
   SweetAlert.DismissReason = DismissReason;
-  SweetAlert.version = '11.1.5';
+  SweetAlert.version = '11.1.10';
 
   const Swal = SweetAlert;
   Swal.default = Swal;
