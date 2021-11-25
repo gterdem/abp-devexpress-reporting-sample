@@ -111,7 +111,7 @@ abp install-libs
 
 You can see `devextreme`, `devexpress-reporting` and `devexpress-analytics-core` folders inside the `wwwroot/libs`:
 
-![wwwroot-lib](C:\Users\galip\Desktop\reporting article\wwwroot-lib.png)
+![wwwroot-lib](wwwroot-lib.png)
 
 
 
@@ -121,7 +121,7 @@ We will create [bundle contributors](https://docs.abp.io/en/abp/latest/UI/AspNet
 
 To utilize bundling better, we will create a hierarchical contributors for both styles and scripts as seen below:
 
-![bundle-hierarchy](C:\Users\galip\Desktop\reporting article\bundle-hierarchy.png)
+![bundle-hierarchy](bundle-hierarchy.png)
 
 It is recommended to follow this hierarchy because some of the scripts and styles need to be added before one an other. Once you grab the relations between dependent scripts and styles, you are free to modify as you desire and re-use the contributors for other DevExpress components.
 
@@ -135,7 +135,7 @@ We'll start with creating folders in the `Acme.BookStore.Web` project starting w
 
 At the end, you should have a folder structure like:
 
-![bundling-folders](C:\Users\galip\Desktop\reporting article\bundling-folders.png)
+![bundling-folders](bundling-folders.png)
 
 With this structured foldering, you can easily add other devexpress components in an isolated and maintained way.
 
@@ -602,7 +602,7 @@ This will allow binding data-source for your report designer. Also update `Desig
 ```
 
 You can now see **Add New DataSource** icon in Field List:
-![data-source](C:\Users\galip\Desktop\reporting article\data-source.png)
+![data-source](data-source.png)
 
 > You can check [DevExpress Reporting Use Data Sources and Connections documentations](https://docs.devexpress.com/XtraReports/401896/web-reporting/asp-net-core-reporting/end-user-report-designer-in-asp-net-applications/use-data-sources-and-connections) for more information.
 
@@ -710,7 +710,7 @@ To add these functionalities, update `Viewer.cshtml` file under `Pages/Reporting
 
 ## Result
 
-![result](C:\Users\galip\Desktop\reporting article\result.gif)
+![result](result.gif)
 
 ## The Source Code
 
