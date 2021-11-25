@@ -9,7 +9,10 @@ using Acme.BookStore.EntityFrameworkCore;
 using Acme.BookStore.Localization;
 using Acme.BookStore.MultiTenancy;
 using Acme.BookStore.Web.Bundling.Common;
+using Acme.BookStore.Web.Controllers;
 using Acme.BookStore.Web.Menus;
+using DevExpress.AspNetCore;
+using DevExpress.XtraReports.Web.Extensions;
 using Microsoft.OpenApi.Models;
 using Volo.Abp;
 using Volo.Abp.Account.Web;
@@ -87,6 +90,17 @@ namespace Acme.BookStore.Web
             ConfigureNavigationServices();
             ConfigureAutoApiControllers();
             ConfigureSwaggerServices(context.Services);
+            ConfigureDevExpress(context);
+        }
+
+        private void ConfigureDevExpress(ServiceConfigurationContext context)
+        {
+            context.Services.AddDevExpressControls();
+            context.Services.AddTransient<CustomReportDesignerController>();
+            context.Services.AddTransient<CustomQueryBuilderController>();
+            context.Services.AddTransient<CustomWebDocumentViewerController>();
+            // Create this file if you want to use report storage which is used for menus like "Save as" etc
+            context.Services.AddScoped<ReportStorageWebExtension, CustomReportStorageWebExtension>();
         }
 
         private void ConfigureUrls(IConfiguration configuration)
@@ -219,6 +233,8 @@ namespace Acme.BookStore.Web
             {
                 app.UseErrorPage();
             }
+            
+            app.UseDevExpressControls();
 
             app.UseCorrelationId();
             app.UseStaticFiles();
