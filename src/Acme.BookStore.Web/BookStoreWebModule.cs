@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Acme.BookStore.EntityFrameworkCore;
 using Acme.BookStore.Localization;
 using Acme.BookStore.MultiTenancy;
+using Acme.BookStore.Web.Bundling.Common;
 using Acme.BookStore.Web.Menus;
 using Microsoft.OpenApi.Models;
 using Volo.Abp;
@@ -22,6 +23,7 @@ using Volo.Abp.AspNetCore.Mvc.UI.MultiTenancy;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.Basic;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.Basic.Bundling;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
+using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared.Bundling;
 using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Autofac;
 using Volo.Abp.AutoMapper;
@@ -106,6 +108,10 @@ namespace Acme.BookStore.Web
                         bundle.AddFiles("/global-styles.css");
                     }
                 );
+                options
+                    .StyleBundles
+                    .Get(StandardBundles.Styles.Global)
+                    .AddContributors(typeof(DevExtremeCommonStyleContributor));
             });
         }
 
