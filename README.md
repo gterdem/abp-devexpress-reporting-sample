@@ -2,7 +2,7 @@
 
 In this step by step article, I will demonstrate how to integrate DevExpress Reporting [DocumentViewer](https://docs.devexpress.com/XtraReports/400248/web-reporting/asp-net-core-reporting/document-viewer-in-asp-net-core-applications) and [End-User Report Designer](https://docs.devexpress.com/XtraReports/400249/web-reporting/asp-net-core-reporting/end-user-report-designer-in-asp-net-core-applications) components to an existing ABP application. We will also create core bundling packages for styling and DevExpress javascript components. And also DocumentViewer specific bundling packages.
 
-## Create the Project (Optional)
+## Create the Project (Optional).
 
 ABP Framework offers startup templates to get into the business faster. We can download a new startup template using [ABP CLI](https://docs.abp.io/en/abp/latest/CLI):
 
