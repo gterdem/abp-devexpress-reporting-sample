@@ -1,6 +1,6 @@
 # Integrating DevExpress ASP.NET Core Reporting to ABP MVC Application
 
-In this step by step article, we will demonstrate how to integrate DevExpress Reporting [DocumentViewer](https://docs.devexpress.com/XtraReports/400248/web-reporting/asp-net-core-reporting/document-viewer-in-asp-net-core-applications) and [End-User Report Designer](https://docs.devexpress.com/XtraReports/400249/web-reporting/asp-net-core-reporting/end-user-report-designer-in-asp-net-core-applications) components to an existing ABP application. We will also create core bundling packages for styling and DevExpress javascript components. And also DocumentViewer specific bundling packages.
+In this step by step article, I will demonstrate how to integrate DevExpress Reporting [DocumentViewer](https://docs.devexpress.com/XtraReports/400248/web-reporting/asp-net-core-reporting/document-viewer-in-asp-net-core-applications) and [End-User Report Designer](https://docs.devexpress.com/XtraReports/400249/web-reporting/asp-net-core-reporting/end-user-report-designer-in-asp-net-core-applications) components to an existing ABP application. We will also create core bundling packages for styling and DevExpress javascript components. And also DocumentViewer specific bundling packages.
 
 ## Create the Project (Optional)
 
@@ -12,7 +12,7 @@ abp new Acme.BookStore
 
 After the download is finished, open the solution in the Visual Studio (or your favorite IDE):
 
-![initial-project](C:\Users\galip\Desktop\reporting article\initial-project.png)
+![initial-project](initial-project.png)
 
 Run the `Acme.BookStore.DbMigrator` application to create the database and seed initial data (which creates the admin user, admin role, related permissions, etc). Then we can run the `Acme.BookStore.Web` project to see our application working.
 
