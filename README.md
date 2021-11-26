@@ -1,20 +1,20 @@
 # Integrating DevExpress ASP.NET Core Reporting to ABP MVC Application
 
-In this step by step article, I will demonstrate how to integrate DevExpress Reporting [DocumentViewer](https://docs.devexpress.com/XtraReports/400248/web-reporting/asp-net-core-reporting/document-viewer-in-asp-net-core-applications) and [End-User Report Designer](https://docs.devexpress.com/XtraReports/400249/web-reporting/asp-net-core-reporting/end-user-report-designer-in-asp-net-core-applications) components to an existing ABP application. We will also create core bundling packages for styling and DevExpress javascript components. And also DocumentViewer specific bundling packages.
+In this step by step article, I will demonstrate how to integrate DevExpress Reporting [DocumentViewer](https://docs.devexpress.com/XtraReports/400248/web-reporting/asp-net-core-reporting/document-viewer-in-asp-net-core-applications) and [End-User Report Designer](https://docs.devexpress.com/XtraReports/400249/web-reporting/asp-net-core-reporting/end-user-report-designer-in-asp-net-core-applications) components to an existing ABP application. We will also create core bundling packages for styling, DevExpress javascript components and also DocumentViewer specific bundling packages.
 
 ## Create the Project (Optional)
 
-ABP Framework offers startup templates to get into the business faster. We can download a new startup template using [ABP CLI](https://docs.abp.io/en/abp/latest/CLI):
+ABP Framework offers startup templates to get to business faster. We can download a new startup template using [ABP CLI](https://docs.abp.io/en/abp/latest/CLI):
 
 ````bash
 abp new Acme.BookStore
 ````
 
-After the download is finished, open the solution in the Visual Studio (or your favorite IDE):
+After the download is finished, open the solution in Visual Studio (or your favorite IDE):
 
 ![initial-project](initial-project.png)
 
-Run the `Acme.BookStore.DbMigrator` application to create the database and seed initial data (which creates the admin user, admin role, related permissions, etc). Then we can run the `Acme.BookStore.Web` project to see our application working.
+Run the `Acme.BookStore.DbMigrator` application to create the database and seed the initial data (which creates the admin user, admin role, related permissions, etc). Then we can run the `Acme.BookStore.Web` project to see our application working.
 
 > _Default admin username is **admin** and password is **1q2w3E\***_
 
@@ -40,7 +40,7 @@ You can also follow [this documentation](https://js.devexpress.com/Documentation
   Install-Package DevExpress.AspNetCore.Reporting
   ```
 
-  command under **Acme.BookStore.Web** project. **Note:** You need commercial license to use this package.
+  command under the **Acme.BookStore.Web** project. **Note:** You need a commercial license to use this package.
 
 ### Adding NPM Packages
 
@@ -49,7 +49,7 @@ Open your `Acme.BookStore.Web` project folder with a command line. Add **devextr
 - `npm install devexpress-reporting @devexpress/analytics-core devextreme` 
 - `npm install globalize jquery-ui-dist cldrjs`
 
-At the end, your `package.json` should look like:
+At the end, your `package.json` should look as shown below:
 
 ```json
 {
@@ -70,9 +70,9 @@ At the end, your `package.json` should look like:
 
 ### Adding Resource Mappings
 
-The `devextreme` and third party NPM packages will be saved under `node_modules` folder. We need to move the needed files in our `wwwroot/libs` folder to use them in the web project. We can do it using the ABP [client side resource mapping](https://docs.abp.io/en/abp/latest/UI/AspNetCore/Client-Side-Package-Management) system.
+The `devextreme` and third party NPM packages will be saved under the `node_modules` folder. We need to move the needed files in our `wwwroot/libs` folder to use them in the web project. We can do it using the ABP [client side resource mapping](https://docs.abp.io/en/abp/latest/UI/AspNetCore/Client-Side-Package-Management) system.
 
-Open the `abp.resourcemapping.js` file in your `Acme.BookStore.Web` project and add definitions to inside `mappings` object so the final `abp.resourcemapping.js` file should look like below:
+Open the `abp.resourcemapping.js` file in your `Acme.BookStore.Web` project and add definitions  inside the `mappings` object so the final `abp.resourcemapping.js` file can look as shown below:
 
 ```javascript
 module.exports = {
@@ -117,31 +117,31 @@ You can see `devextreme`, `devexpress-reporting` and `devexpress-analytics-core`
 
 ## Bundling
 
-We will create [bundle contributors](https://docs.abp.io/en/abp/latest/UI/AspNetCore/Bundling-Minification) to add devextreme css and javascript files for DevExpress [DocumentViewer](https://docs.devexpress.com/XtraReports/400248/web-reporting/asp-net-core-reporting/document-viewer-in-asp-net-core-applications) and [End-User Report Designer](https://docs.devexpress.com/XtraReports/400249/web-reporting/asp-net-core-reporting/end-user-report-designer-in-asp-net-core-applications) components.
+We will create [bundle contributors](https://docs.abp.io/en/abp/latest/UI/AspNetCore/Bundling-Minification) to add the devextreme css and javascript files for DevExpress [DocumentViewer](https://docs.devexpress.com/XtraReports/400248/web-reporting/asp-net-core-reporting/document-viewer-in-asp-net-core-applications) and [End-User Report Designer](https://docs.devexpress.com/XtraReports/400249/web-reporting/asp-net-core-reporting/end-user-report-designer-in-asp-net-core-applications) components.
 
-To utilize bundling better, we will create a hierarchical contributors for both styles and scripts as seen below:
+To utilize bundling better, we will create  hierarchical contributors for both styles and scripts as seen below:
 
 ![bundle-hierarchy](bundle-hierarchy.png)
 
-It is recommended to follow this hierarchy because some of the scripts and styles need to be added before one an other. Once you grab the relations between dependent scripts and styles, you are free to modify as you desire and re-use the contributors for other DevExpress components.
+It is recommended to follow this hierarchy because some of the scripts and styles need to be added before one another. Once you grab the relations between the dependent scripts and styles, you are free to modify the `Bundling hierarchy` as you desire and re-use the contributors for other DevExpress components.
 
-We'll start with creating folders in the `Acme.BookStore.Web` project starting with a folder name **Bundling**. Create the following folders for future usage:
+We'll start with creating folders in the `Acme.BookStore.Web` project starting with a folder named **Bundling**. Create the following folders for future usage:
 
-- Create `Common` folder under `Bundling` folder
-- Create `Reporting` folder under `Bundling` folder
-- Create `ThirdParty` folder under `Reporting ` folder
-- Create `DocumentViewer` folder under `Reporting ` folder
-- Create `DocumentDesigner` folder under `Reporting ` folder
+- Create a `Common` folder under `Bundling` folder
+- Create a `Reporting` folder under `Bundling` folder
+- Create a `ThirdParty` folder under `Reporting ` folder
+- Create a `DocumentViewer` folder under `Reporting ` folder
+- Create a `DocumentDesigner` folder under `Reporting ` folder
 
-At the end, you should have a folder structure like:
+At the end, you should have a folder structure as shown below:
 
 ![bundling-folders](bundling-folders.png)
 
 With this structured foldering, you can easily add other devexpress components in an isolated and maintained way.
 
-### Adding Common Style Contributor
+### Adding the Common Style Contributor
 
-Create `DevExtremeCommonStyleContributor.cs` file under `Bundling/Common` folder with the following content:
+Create a `DevExtremeCommonStyleContributor.cs` file under the `Bundling/Common` folder with the following content:
 
 ```csharp
 using System.Collections.Generic;
@@ -159,9 +159,9 @@ public class DevExtremeCommonStyleContributor : BundleContributor
 }
 ```
 
-> You can choose another theme than the light theme. Check the `/libs/devextreme/css/` folder and the DevExtreme documentation for other themes.
+> You can choose other themes than the light theme. Check the `/libs/devextreme/css/` folder and the DevExtreme documentation for other themes.
 
-Now we will add the common bundle to global style bundles. Open your `Acme.BookStoreWebModule.cs` file in your `Acme.BookStore.Web` project and add following code into the `ConfigureServices` method:
+Now we will add the common bundle to the global style bundles. Open your `Acme.BookStoreWebModule.cs` file in your `Acme.BookStore.Web` project and add the following code into the `ConfigureServices` method:
 
 ```csharp
 Configure<AbpBundlingOptions>(options =>
@@ -173,9 +173,9 @@ Configure<AbpBundlingOptions>(options =>
 });
 ```
 
-### Adding Document Viewer Style Contributor
+### Adding the Document Viewer Style Contributor
 
-Create `DevExpressDocumentViewerStyleContributor.cs` file under `Bundling/Reporting/DocumentViewer` folder with the following content:
+Create a `DevExpressDocumentViewerStyleContributor.cs` file under the `Bundling/Reporting/DocumentViewer` folder with the following content:
 
 ```csharp
 using System.Collections.Generic;
@@ -200,9 +200,9 @@ public class DevExpressDocumentViewerStyleContributor : BundleContributor
 }
 ```
 
-### Adding Document Designer Style Contributor
+### Adding the Document Designer Style Contributor
 
-Create `DevExtremeDocumentDesignerStyleContributor.cs` file under `Bundling/Reporting/DocumentDesigner` folder with the following content:
+Create a `DevExtremeDocumentDesignerStyleContributor.cs` file under the `Bundling/Reporting/DocumentDesigner` folder with the following content:
 
 ```csharp
 using System.Collections.Generic;
@@ -225,9 +225,9 @@ public class DevExtremeDocumentDesignerStyleContributor : BundleContributor
 }
 ```
 
-### Adding Reporting Common Script Contributor
+### Adding the Reporting Common Script Contributor
 
-Create `DevExtremeReportingCommonScriptContributor.cs` file under `Bundling/Common` folder with the following content:
+Create a `DevExtremeReportingCommonScriptContributor.cs` file under the `Bundling/Common` folder with the following content:
 
 ```csharp
 using System.Collections.Generic;
@@ -251,13 +251,13 @@ public class DevExtremeReportingCommonScriptContributor : BundleContributor
 }
 ```
 
-The `DevExtremeReportingCommonScriptContributor` depends on `JQueryScriptContributor` which adds JQuery related files before the DevExpress packages (see the [bundling system](https://docs.abp.io/en/abp/latest/UI/AspNetCore/Bundling-Minification) for details).
+The `DevExtremeReportingCommonScriptContributor` depends on the  `JQueryScriptContributor` which adds JQuery related files before the DevExpress packages (see the [bundling system](https://docs.abp.io/en/abp/latest/UI/AspNetCore/Bundling-Minification) for details).
 
-> Since not all of the components of DevExtreme uses scripts like `knockout.js` and `jquery-ui.js`, we used *ReportingCommon* naming. You can choose another name or a *Common* contributor only adding `dx.all.js`.
+> Since not all of the components of DevExtreme use scripts like `knockout.js` and `jquery-ui.js`, we used *ReportingCommon* naming. You can choose another name or a *Common* contributor by only adding `dx.all.js`.
 
-### Adding Third Party Script Contributor
+### Adding the Third Party Script Contributor
 
-Create `DevExpressReportingThirdPartyScriptContributor.cs` file under `Bundling/Reporting/ThirdParty` folder with the following content:
+Create a `DevExpressReportingThirdPartyScriptContributor.cs` file under the `Bundling/Reporting/ThirdParty` folder with the following content:
 
 ```csharp
 using System.Collections.Generic;
@@ -297,9 +297,9 @@ public class DevExpressReportingThirdPartyScriptContributor : BundleContributor
 
 The `DevExpressReportingThirdPartyScriptContributor` depends on the newly created `DevExtremeReportingCommonScriptContributor` which adds the specified scripts before third party scripts.
 
-### Adding Document Viewer Script Contributor
+### Adding the Document Viewer Script Contributor
 
-Create `DevExpressDocumentViewerScriptContributor.cs` file under `Bundling/Reporting/DocumentViewer` folder with the following content:
+Create a `DevExpressDocumentViewerScriptContributor.cs` file under the `Bundling/Reporting/DocumentViewer` folder with the following content:
 
 ```csharp
 using System.Collections.Generic;
@@ -320,9 +320,9 @@ public class DevExpressDocumentViewerScriptContributor : BundleContributor
 }
 ```
 
-Note that `DevExpressDocumentViewerScriptContributor` depends on the newly created `DevExpressReportingThirdPartyScriptContributor`.
+Note that the `DevExpressDocumentViewerScriptContributor` depends on the newly created `DevExpressReportingThirdPartyScriptContributor`.
 
-### Adding Document Designer Script Contributor
+### Adding the Document Designer Script Contributor
 
 ```csharp
 using System.Collections.Generic;
@@ -347,13 +347,13 @@ public class DevExpressDocumentDesignerScriptContributor : BundleContributor
 
 ## End User Report Designer Integration
 
-> You are free to create your desired pages and rooting. This sample will be creating **Designer** page to demonstrate the layout for the DevExpress reporting components individually.
+> You are free to create your desired pages and rooting. This sample will be creating a **Designer** page to demonstrate the layout for the DevExpress reporting components individually.
 
-Create `Reporting` folder under `Pages` in the `Acme.BookStore.Web` project .
+Create a `Reporting` folder under `Pages` in the `Acme.BookStore.Web` project .
 
-### Adding Document Designer Page
+### Adding a Document Designer Page
 
-Create `Designer.cshtml` Razor page under `Pages/Reporting` folder and add the following:
+Create a `Designer.cshtml` Razor page under the `Pages/Reporting` folder and add the following:
 
 ```csharp
 @page
@@ -377,7 +377,7 @@ Create `Designer.cshtml` Razor page under `Pages/Reporting` folder and add the f
 
 ### Adding Controllers
 
-Create `Controllers` folder and add `ReportingController.cs` file to contain customized controllers for reporting endpoints:
+Create a `Controllers` folder and add a `ReportingController.cs` file to contain customized controllers for reporting endpoints:
 
 ```csharp
 using DevExpress.AspNetCore.Reporting.QueryBuilder;
@@ -416,7 +416,7 @@ public class CustomQueryBuilderController : QueryBuilderController
 
 ### Service Configuration and Midware Update
 
-Update `ConfigureServices` method of `BookStoreWebModule.cs` file in **Acme.BookStore.Web** project with the following:
+Update the `ConfigureServices` method of the `BookStoreWebModule.cs` file in **Acme.BookStore.Web** project with the following:
 
 ```csharp
 context.Services.AddDevExpressControls();
@@ -439,7 +439,7 @@ app.UseCorrelationId();
 
 ### Adding Custom Report Storage (Optional)
 
-Create `CustomReportStorageWebExtension.cs` under **Acme.BookStore.Web** project as below:
+Create `CustomReportStorageWebExtension.cs` under the **Acme.BookStore.Web** project as below:
 
 ```csharp
 using System;
@@ -529,11 +529,11 @@ public class ReportsFactory
 }
 ```
 
-> You can check more about at [DevExpress Report Storage documentation](https://docs.devexpress.com/XtraReports/400211/web-reporting/asp-net-core-reporting/end-user-report-designer-in-asp-net-applications/add-a-report-storage).
+> You can check more about it at [DevExpress Report Storage documentation](https://docs.devexpress.com/XtraReports/400211/web-reporting/asp-net-core-reporting/end-user-report-designer-in-asp-net-applications/add-a-report-storage).
 
-### Adding DataSource To Designer
+### Adding a DataSource To Designer
 
-Update `Designer.cshtml.cs` under `Pages/Reporting` in **Acme.BookStore.Web** project with the following:
+Update `Designer.cshtml.cs` under `Pages/Reporting` in the **Acme.BookStore.Web** project with the following:
 
 ```csharp
 using System;
@@ -583,7 +583,7 @@ public class Designer : PageModel
 }
 ```
 
-This will allow binding data-source for your report designer. Also update `Designer.cshtml` to use these data sources:
+This will allow binding the `data-source` for your report designer. Also update `Designer.cshtml` to use these data sources:
 
 ```csharp
 @{
@@ -601,20 +601,20 @@ This will allow binding data-source for your report designer. Also update `Desig
 }
 ```
 
-You can now see **Add New DataSource** icon in Field List:
+You can now see the **Add New DataSource** icon in the Field List:
 ![data-source](data-source.png)
 
 > You can check [DevExpress Reporting Use Data Sources and Connections documentations](https://docs.devexpress.com/XtraReports/401896/web-reporting/asp-net-core-reporting/end-user-report-designer-in-asp-net-applications/use-data-sources-and-connections) for more information.
 
 ## Document Viewer Integration
 
-> You are free to create your desired pages and rooting. This sample will be creating **Viewer** page to demonstrate the layout for the DevExpress reporting components individually.
+> You are free to create your desired pages and rooting. This sample will be creating a **Viewer** page to demonstrate the layout for the DevExpress reporting components individually.
 
-Since End User Report Designer already implements required controllers for features, you should only add new page for document viewing.
+Since End User Report Designer already implements the required controllers for features, you should only add a new page for document viewing.
 
-### Adding Document Viewer Page
+### Adding a Document Viewer Page
 
-Create `Viewer.cshtml` Razor page under `Pages/Reporting` folder and add the following:
+Create a `Viewer.cshtml` Razor page under the `Pages/Reporting` folder and add the following:
 
 ```csharp
 @page
@@ -639,11 +639,11 @@ Create `Viewer.cshtml` Razor page under `Pages/Reporting` folder and add the fol
 
 > Note: `TestReport.repx` file must be found under `Reports` folder in **Acme.BookStore.Web** project.
 
-### Adding Antiforgery Token or Passing Bearer Token
+### Adding the Antiforgery Token or Passing Bearer Token
 
 While exporting data, you may come across **HTTP 400** error which logs as `[ERR] The required antiforgery request token was not provided in either form field "__RequestVerificationToken" or header value "RequestVerificationToken".` Or you may want to pass **Bearer Token**.
 
-To add these functionalities, update `Viewer.cshtml` file under `Pages/Reporting` folder in **Acme.BookStore.Web** project as below:
+To add these functionalities, update the `Viewer.cshtml` file under the `Pages/Reporting` folder in the **Acme.BookStore.Web** project as shown below:
 
 ```csharp
 @page
@@ -712,6 +712,7 @@ To add these functionalities, update `Viewer.cshtml` file under `Pages/Reporting
 
 ![result](result.gif)
 
-## The Source Code
+## Source Code
 
 - You can download the source code from [here](https://github.com/gterdem/abp-devexpress-reporting-sample).
+
